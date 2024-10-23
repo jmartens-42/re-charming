@@ -24,6 +24,32 @@ impl HtmlRenderer {
         self
     }
 
+    pub fn render_inline(&self, chart: &Chart) -> Result<String, EchartsError> {
+
+        let template = include_str!("../asset/inline_charts.html.hbs");
+        let (theme, theme_source) = self.theme.to_str();
+        let canvas_type = match chart.save_as_image_type() {
+            Some(&SaveAsImageType::Svg) => "svg".to_string(),
+            _ => "canvas".to_string(),
+        };
+        let data = Handlebars::new()
+            .render_template(
+                template,
+                &serde_json::json!({
+                    "title": self.title,
+                    "theme": theme,
+                    "theme_source": theme_source,
+                    "width": self.width,
+                    "height": self.height,
+                    "chart_id": "chart",
+                    "canvas_type": canvas_type,
+                    "chart_option": chart.to_string(),
+                }),
+            )
+            .map_err(|error| EchartsError::HtmlRenderingError(error.to_string()))?;
+        Ok(data)
+    }
+
     pub fn render(&self, chart: &Chart) -> Result<String, EchartsError> {
         let template = include_str!("../asset/charts.html.hbs");
         let (theme, theme_source) = self.theme.to_str();

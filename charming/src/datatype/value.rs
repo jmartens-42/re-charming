@@ -38,6 +38,7 @@ pub enum CompositeValue {
     OptionalNumber(Option<NumericValue>),
     String(String),
     Array(Vec<CompositeValue>),
+    Tuple((String, f64))
 }
 
 impl<N> From<N> for CompositeValue
